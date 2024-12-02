@@ -280,14 +280,18 @@ def create_order():
 def get_orders():
     token = request.headers.get('Authorization')
 
+    # Check if the token exists
     if not token:
         return jsonify({'message': 'Token is missing'}), 401
-    
+
+    # Validate the token format
     if not token.startswith('Bearer '):
         return jsonify({'message': 'Invalid token format'}), 401
 
+    # Extract the actual token value
     token = token.split(' ')[1]
 
+    # Decode the JWT token
     try:
         data = jwt.decode(token, secret_key, algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
@@ -295,12 +299,20 @@ def get_orders():
     except jwt.InvalidTokenError:
         return jsonify({'message': 'Invalid token'}), 401
 
+    # Fetch the user from the database
     user = User.query.get(data['id'])
+
+    # Check if the user exists
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    # Fetch orders based on user role
     if user.role == 'admin' or user.role == 'sales_rep':
         orders = Order.query.all()
     else:
         orders = Order.query.filter_by(customer_id=user.id).all()
 
+    # Return the orders as JSON
     return jsonify([{
         'order_no': order.order_no,
         'product_name': order.product.name,
@@ -308,6 +320,7 @@ def get_orders():
         'product_price': order.product.price,
         'status': order.status
     } for order in orders]), 200
+
 
 @app.route('/api/orders/cancel/<order_id>', methods=['PUT'])
 def cancel_order(order_id):

@@ -30,7 +30,7 @@ To run this project, you need the following installed on your system:
    git clone https://github.com/Bakora2001/backend-sales-application.git
    cd backend-sales-application
 ### Run the follwoing Commands 
-   flask db init
-   flask db migrate
-   flask db upgrade
-   flask run
+   -flask db init
+   -flask db migrate
+   -flask db upgrade
+   -flask run
